@@ -3,6 +3,7 @@
 
 
 import re
+from pprint import pprint
 
 class Othello(object):
 
@@ -11,10 +12,10 @@ class Othello(object):
         for r in range(8):
             for c in range(8):
                 self.board[(r, c)] = {'row': r, 'column': c, 'stone': None}
-        self.board[(3, 3)]['stone'] = 1
-        self.board[(4, 4)]['stone'] = 1
-        self.board[(3, 4)]['stone'] = 0
-        self.board[(4, 3)]['stone'] = 0
+        self.board[(3, 3)]['stone'] = 0
+        self.board[(4, 4)]['stone'] = 0
+        self.board[(3, 4)]['stone'] = 1
+        self.board[(4, 3)]['stone'] = 1
         self.sequence = []
 
     def generate(self, seq=None):
@@ -22,12 +23,8 @@ class Othello(object):
         pass # TO_BE_IMPLEMENTED
         return
 
-    def move(self, colour, position):
+    def move(self, colour, position, count_activity=False):
         position = position.upper()
-        # 检查 position 参数合法性
-        if not re.match('^[A-H][1-8]$', position):
-            pass # TO_BE_IMPLEMENTED
-            return
         # 检查 position 是否已被占
         centers = ['D4', 'E4', 'D5', 'E5']
         if position in centers + self.sequence:
@@ -39,9 +36,16 @@ class Othello(object):
             'position': position,
             'colour': colour
         })
-        self.board[(row, column)]['stone'] = colour
-        # 提子
+        # 提子，如果 count_activity 为 True 时仅计算提掉的散度，不提子 
         taking = self.check_take(colour, position)
+        if count_activity:
+            activity = 0
+            if len(taking) == 0:
+                return 0
+            for t in taking:
+                activity += self.get_stone_activity(t)
+            return activity
+        self.board[(row, column)]['stone'] = colour
         if len(taking) > 0:
             for t in taking:
                 self.board[self.position2rc(t)]['stone'] = colour
@@ -71,6 +75,7 @@ class Othello(object):
                 stones.append(self.board[(r + y * i, c + x * i)])
             else:
                 return stones
+        return stones
 
     def check_take(self, colour, position):
         taking = []
@@ -79,10 +84,31 @@ class Othello(object):
             if colour not in list(map(lambda x: x['stone'], direction_stones)):
                 continue
             nearest = list(map(lambda x: x['stone'], direction_stones)).index(colour)
-            if None in direction_stones[:nearest]:
+            if None in list(map(lambda x: x['stone'], direction_stones[:nearest])):
                 continue
             taking.extend(list(map(lambda x: self.rc2position(x['row'], x['column']), direction_stones[:nearest])))
         return taking
+
+    def get_available_moves(self, colour):
+        available_moves = []
+        for row in range(8):
+            for column in range(8):
+                if self.board[(row, column)]['stone'] is None:
+                    if len(self.check_take(colour, self.rc2position(row, column))) > 0:
+                        available_moves.append(self.rc2position(row, column))
+        return available_moves
+
+    def get_stone_activity(self, position):
+        stone_activity = 0
+        r, c = self.position2rc(position)
+        for x in range(-1, 2, 1):
+            for y in range(-1, 2, 1):
+                if x == 0 and y == 0:
+                    continue
+                if r + y >= 0 and c + x >= 0:
+                    if self.board[(r + y, c + x)]['stone'] is None:
+                        stone_activity += 1
+        return stone_activity
 
     def print_board(self):
         for row in range(8):
@@ -103,6 +129,7 @@ class Othello(object):
         row = int(position[1]) - 1
         column = int(ord(position[0]) - ord('A'))
         return (row, column)
+
 
 if __name__ == '__main__':
     pass
