@@ -186,50 +186,29 @@ def run():
         o.move(ai_colour, o.get_decision(ai_colour))
         o.print_board()
         cannot_move_flag = 0
-        while(True):
-            if len(o.get_available_moves(user_colour)) > 0:
-                while(True):
-                    user_movement = input('白方输入：\n')
-                    if user in o.get_available_moves(user_colour):
-                        break
-                o.move(0, user_movement)
-                cannot_move_flag = 0
-                o.print_board()
-            else:
-                cannot_move_flag += 1
-            if len(o.get_available_moves(ai_colour)) > 0:
-                movement = o.get_decision(ai_colour)
-                o.move(ai_colour, movement)
-                cannot_move_flag = 0
-                print('黑方：{}'.format(movement))
-                o.print_board()
-            else:
-                cannot_move_flag += 1
-            if cannot_move_flag >= 2:
-                o.final_count()
-    if ai_colour == 0:
+    else:
         o.print_board()
-        while(True):
-            if len(o.get_available_moves(user_colour)) > 0:
-                while(True):
-                    user = input('黑方输入：\n')
-                    if user in o.get_available_moves(user_colour):
-                        break
-                o.move(user_colour, user)
-                cannot_move_flag = 0
-                o.print_board()
-            else:
-                cannot_move_flag += 1
-            if len(o.get_available_moves(ai_colour)) > 0:
-                movement = o.get_decision(ai_colour)
-                o.move(ai_colour, movement)
-                cannot_move_flag = 0
-                print('白方：{}'.format(movement))
-                o.print_board()
-            else:
-                cannot_move_flag += 1
-            if cannot_move_flag >= 2:
-                o.final_count()
+    while(True):
+        if len(o.get_available_moves(user_colour)) > 0:
+            while(True):
+                user_movement = input('{}方输入：\n'.format('黑' if user_colour == 1 else '白'))
+                if user_movement in o.get_available_moves(user_colour):
+                    break
+            o.move(user_colour, user_movement)
+            cannot_move_flag = 0
+            o.print_board()
+        else:
+            cannot_move_flag += 1
+        if len(o.get_available_moves(ai_colour)) > 0:
+            movement = o.get_decision(ai_colour)
+            o.move(ai_colour, movement)
+            cannot_move_flag = 0
+            print('{}方：{}'.format('黑' if ai_colour == 1 else '白', movement))
+            o.print_board()
+        else:
+            cannot_move_flag += 1
+        if cannot_move_flag >= 2:
+            o.final_count()
 
 
 if __name__ == '__main__':
