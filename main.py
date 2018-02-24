@@ -155,6 +155,14 @@ class Othello(object):
         exit()
 
     def print_board(self):
+        blacks = 0
+        whites = 0
+        for row in range(8):
+            for column in range(8):
+                if self.board[(row, column)]['stone'] == 1:
+                    blacks += 1
+                if self.board[(row, column)]['stone'] == 0:
+                    whites += 1
         print('  A B C D E F G H ')
         for row in range(8):
             print(row + 1, end=' ')
@@ -164,6 +172,7 @@ class Othello(object):
                 else:
                     print('_', end=' ')
             print()
+        print('black({})-({})white'.format(blacks, whites))
         print()
 
     @staticmethod
@@ -191,7 +200,7 @@ def run():
     while(True):
         if len(o.get_available_moves(user_colour)) > 0:
             while(True):
-                user_movement = input('{}方输入：\n'.format('黑' if user_colour == 1 else '白'))
+                user_movement = input('{}方输入：\n'.format('黑' if user_colour == 1 else '白')).upper()
                 if user_movement in o.get_available_moves(user_colour):
                     break
             o.move(user_colour, user_movement)
@@ -204,6 +213,7 @@ def run():
             o.move(ai_colour, movement)
             cannot_move_flag = 0
             print('{}方：{}'.format('黑' if ai_colour == 1 else '白', movement))
+            print()
             o.print_board()
         else:
             cannot_move_flag += 1
