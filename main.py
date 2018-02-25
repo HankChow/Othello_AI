@@ -137,6 +137,55 @@ class Othello(object):
                 continue
         return decision[random.randint(0, len(decision) - 1)]
 
+    def get_decision_new(self, colour):
+        decision = []
+        available_moves = self.get_available_moves(colour)
+        if len(available_moves) == 0:
+            return decision
+        corners = ['A1', 'H1', 'A8', 'H8']
+        for corner in corners:
+            if corner in available_moves:
+                return corner
+        halves_shreshold = 32
+        blanks = 0
+        for row in range(8):
+            for column in range(8):
+                if self.board[(row, column)]['stone'] is None:
+                    blanks += 1
+        if blanks <= halves_shreshold:
+            current_activity = 64
+            for move in available_moves:
+                if len(decision) == 0:
+                    decision.append(move)
+                    current_activity = self.move(colour, move, count_activity=True)
+                    continue
+                if self.move(colour, move, count_activity=True) < current_activity:
+                    decision = []
+                    decision.append(move)
+                    continue
+                if self.move(colour, move, count_activity=True) == current_activity:
+                    decision.append(move)
+                    continue
+                if self.move(colour, move, count_activity=True) > current_activity:
+                    continue
+        else:
+            current_takes = 0
+            for move in available_moves:
+                if len(decision) == 0:
+                    decision.append(move)
+                    current_takes = len(self.check_take(colour, move))
+                    continue
+                if len(self.check_take(colour, move)) > current_takes:
+                    decision = []
+                    decision.append(move)
+                    continue
+                if len(self.check_take(colour, move)) == current_takes:
+                    decision.append(move)
+                    continue
+                if len(self.check_take(colour, move)) < current_takes:
+                    continue
+        return decision[random.randint(0, len(decision) - 1)]
+
     def final_count(self):
         blacks = 0
         whites = 0
@@ -200,7 +249,8 @@ def run():
     while(True):
         if len(o.get_available_moves(user_colour)) > 0:
             while(True):
-                user_movement = input('{}方输入：\n'.format('黑' if user_colour == 1 else '白')).upper()
+                #user_movement = input('{}方输入：\n'.format('黑' if user_colour == 1 else '白')).upper()
+                user_movement = o.get_decision_new(user_colour)
                 if user_movement in o.get_available_moves(user_colour):
                     break
             o.move(user_colour, user_movement)
